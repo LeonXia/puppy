@@ -1,0 +1,111 @@
+name: Test1
+
+on: workflow_dispatch
+  
+jobs:
+  check-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: :Checkout1
+      uses: actions/checkout@v4
+   
+    - name: Check "NORUN" commit message
+      id: check-commit
+      run: |
+        if [[ "${{ github.event.head_commit.message }}" == "#NORUN"* ]]; then
+          echo "::set-output name=skip_workflow::true"
+        else
+          echo "::set-output name=skip_workflow::false"
+        fi
+      #3.Check commit information whether begin with "#NORUN"
+  
+  build:
+  needs: check-commit-message
+  runs-on: ubuntu-latest
+  if: steps.check-commit.outputs.skip_workflow != 'true'
+  steps:
+
+  - name: Checkout2
+    uses: actions/checkout@v4
+    with: 
+        ref: ${{ github.ref }}
+      #2.Perform a scan of the branch that triggered the workflow 
+   
+  - name: Build the Docker image
+    run: docker build . --file Dockerfile --tag my-image-name:${{ github.sha }}
+
+  - name: scan the vulnerability
+    uses: aquasecurity/trivy-action@master
+    with:
+        image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH' 
+       
+  - name: Send JSON data to Slack workflow
+    uses: slackapi/slack-github-action@v1.24.0
+    with:
+       payload: |
+            {
+              "text": "GitHub Action build result: ${{ job.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ job.status }}"
+                  }
+                }
+              ]
+            }
+     env:
+          SLACK_WEBHOOK_URL: ${{ secrets.WebHookForTest }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+  - name: push image to Docker
+    run :
+      echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      docker push my-image-name:${{ github.sha }}
+      #not completed
+  
+  - name: Send success notification
+    if: ${{success()}}
+    uses: slackapi/slack-github-action@v1.24.0
+    with:
+      payload: |
+        {
+          "text": "Workflow completed successfully. Here are the details:",
+          "blocks": [
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Name:* Raven"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Matriculation Number:* 123"
+                },
+                {
+                      "type": "mrkdwn",
+                      "text": "*Email:* Your Email"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository URL:* ${{ github.repository }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Docker Hub URL:* Your Docker Hub URL"
+                    }
+                  ]
+                }
+              ]
+            }
+      env:
+              SLACK_WEBHOOK_URL: ${{ secrets.WebHookForTest }}
+              SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
