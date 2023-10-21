@@ -43,7 +43,7 @@ jobs:
         exit-code: '1'
         ignore-unfixed: true
         vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH' 
+        severity: 'CRITICAL,HIGH'
 
   - name: Send JSON data to Slack workflow
     uses: slackapi/slack-github-action@v1.24.0
