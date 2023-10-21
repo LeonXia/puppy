@@ -44,7 +44,7 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH' 
-       
+
   - name: Send JSON data to Slack workflow
     uses: slackapi/slack-github-action@v1.24.0
     with:
