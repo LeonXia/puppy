@@ -11,12 +11,10 @@ jobs:
 
     - name: Check "NORUN" commit message
       id: check-commit
-      run: |
-        echo "::set-output name=skip_workflow::false"
-
+      run: echo "::set-output name=skip_workflow::false"
 
     - name: Checkout2
-      if: steps.check-commit.outputs.skip_workflow != 'true'
+      ##if: steps.check-commit.outputs.skip_workflow != 'true'
       uses: actions/checkout@v4
       with: 
         ref: ${{ github.ref }}
