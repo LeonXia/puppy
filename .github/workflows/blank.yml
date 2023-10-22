@@ -1,33 +1,23 @@
-name: Test1
+name: Docker Image CI
 
 on: workflow_dispatch
   
 jobs:
   check-commit:
     runs-on: ubuntu-latest
-
     steps:
     - name: :Checkout1
       uses: actions/checkout@v4
-   
+
     - name: Check "NORUN" commit message
       id: check-commit
       run: |
-        if [[ "${{ github.event.head_commit.message }}" == "#NORUN"* ]]; then
-          echo "::set-output name=skip_workflow::true"
-        else
-          echo "::set-output name=skip_workflow::false"
-        fi
-      #3.Check commit information whether begin with "#NORUN"
-  
-  build:
-  needs: check-commit-message
-  runs-on: ubuntu-latest
-  if: steps.check-commit.outputs.skip_workflow != 'true'
-  steps:
+        echo "::set-output name=skip_workflow::false"
 
-  - name: Checkout2
-    uses: actions/checkout@v4
-    with: 
+
+    - name: Checkout2
+      if: steps.check-commit.outputs.skip_workflow != 'true'
+      uses: actions/checkout@v4
+      with: 
         ref: ${{ github.ref }}
-      #2.Perform a scan of the branch that triggered the workflow 
+      run: echo Hello, world!
