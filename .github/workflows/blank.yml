@@ -9,8 +9,8 @@ jobs:
     - name: Step A
       id: check-commit
       run: |
-        echo "STEP_B_IF=true" >> $GITHUB_ENV
-        ##echo "STEP_D_IF=true" >> $GITHUB_ENV
+        ##echo "STEP_B_IF=true" >> $GITHUB_ENV
+        echo "STEP_D_IF=true" >> $GITHUB_ENV
 
     - name: Step B
       if: env.STEP_B_IF != null
