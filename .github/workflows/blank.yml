@@ -6,7 +6,7 @@ jobs:
   check-commit:
     runs-on: ubuntu-latest
     steps:
-    - name: :Checkout1
+    - name: Checkout1
       uses: actions/checkout@v4
 
     - name: Check "NORUN" commit message
