@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Condition Test
 
 on: workflow_dispatch
   
@@ -6,10 +6,14 @@ jobs:
   check-commit:
     runs-on: ubuntu-latest
     steps:
-    - name: Check "NORUN" commit message
+    - name: Step A
       id: check-commit
       run: echo "::set-output name=skip_workflow::false"
 
-    - name: Checkout2
+    - name: Step B
       if: steps.check-commit.outputs.skip_workflow != 'false'
-      run: echo Hello
+      run: echo Step B
+
+    - name: Step D
+      if: steps.check-commit.outputs.skip_workflow != 'true'
+      run: echo Step D
